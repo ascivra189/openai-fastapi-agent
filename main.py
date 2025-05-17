@@ -1,27 +1,40 @@
 from fastapi import FastAPI, Request
-import openai
+from fastapi.responses import JSONResponse
+import openai import OpenAI
 import os
 from dotenv import load_dotenv
 
-load_dotenv() #Load .env variables
+# Load .env variables
+load_dotenv() 
 
 app = FastAPI()
+
+# Set OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-    
-@app.get("/generate")
-async def generate(request:Request):
-    data = await request.json()
-    topic = data.get("topic", "AI Tools")
-    platform = data.get("platform","YouTube")
+# Add this root route so you can see something at "/"    
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the FastAPI OpenAI Script Generator!"}
 
-    prompt = f"Write a complete script for a {platform} video about: {topic}"
+@app.post("/generate")
+async def generate(request: Request):
+    try:    
+        data = await request.json()
+        topic = data.get("topic", "AI Tools")
+        platform = data.get("platform","YouTube")
 
-    response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )   
+        prompt = f"Write a complete script for a {platform} video about: {topic}"
+
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )   
         
-    return {"script": response.choices[0].message.content}
+        return {"script": response.choices[0].message.content}
+
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+    
