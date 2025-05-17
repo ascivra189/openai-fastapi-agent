@@ -6,13 +6,10 @@ from dotenv import load_dotenv
 
 # Load .env variables
 load_dotenv() 
+client = OpenAI(api_key = os.getenv("OPENAI_API_KEY")) 
 
 app = FastAPI()
 
-# Set OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-# Add this root route so you can see something at "/"    
 @app.get("/")
 async def root():
     return {"message": "Welcome to the FastAPI OpenAI Script Generator!"}
